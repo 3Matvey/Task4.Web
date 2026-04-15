@@ -1,0 +1,10 @@
+﻿@{
+    var message = TempData["StatusMessage"] as string;
+}
+
+@if (!string.IsNullOrWhiteSpace(message))
+{
+    <div class="alert alert-info">
+        @message
+    </div>
+}
