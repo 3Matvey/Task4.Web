@@ -1,6 +1,7 @@
 ﻿namespace Task4.Web.ViewModels
 {
-    public class BulkActionRequest
+    public sealed class BulkActionRequest
     {
+        public List<Guid> SelectedUserIds { get; set; } = [];
     }
 }

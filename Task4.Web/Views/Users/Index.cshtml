@@ -1,0 +1,50 @@
+﻿@model Task4.Web.ViewModels.UsersIndexViewModel
+
+@{
+    ViewData["Title"] = "Users";
+}
+
+<form method="post" id="usersForm">
+    @Html.AntiForgeryToken()
+
+    <div class="mb-3 d-flex gap-2">
+        <button formaction="/Users/Block" class="btn btn-danger" disabled id="btnBlock">Block</button>
+        <button formaction="/Users/Unblock" class="btn btn-outline-success" disabled id="btnUnblock">Unblock</button>
+        <button formaction="/Users/Delete" class="btn btn-outline-danger" disabled id="btnDelete">Delete</button>
+        <button formaction="/Users/DeleteUnverified" class="btn btn-outline-secondary" disabled id="btnDeleteUnverified">
+            Delete unverified
+        </button>
+    </div>
+
+    <table class="table table-bordered align-middle">
+        <thead>
+            <tr>
+                <th>
+                    <input type="checkbox" id="selectAll" />
+                </th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Status</th>
+                <th>Last login</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var u in Model.Users)
+            {
+                <tr>
+                    <td>
+                        <input type="checkbox" name="SelectedUserIds" value="@u.Id" class="row-checkbox" />
+                    </td>
+                    <td>@u.Name</td>
+                    <td>@u.Email</td>
+                    <td>@u.Status</td>
+                    <td>@(u.LastLoginAtUtc?.ToString("u") ?? "-")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</form>
+
+@section Scripts {
+    <script src="~/js/users-table.js"></script>
+}

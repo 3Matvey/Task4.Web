@@ -1,6 +1,7 @@
 ﻿namespace Task4.Web.ViewModels
 {
-    public class UsersIndexViewModel
+    public sealed class UsersIndexViewModel
     {
+        public IReadOnlyList<UserRowViewModel> Users { get; init; } = [];
     }
 }
