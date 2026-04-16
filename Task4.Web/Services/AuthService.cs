@@ -8,6 +8,7 @@ namespace Task4.Web.Services
     public sealed class AuthService(
         AppDbContext dbContext,
         PasswordHasher<User> passwordHasher,
+        EmailConfirmationService emailConfirmationService,
         TimeProvider timeProvider)
     {
         public async Task<AuthResult> RegisterAsync(
@@ -22,7 +23,14 @@ namespace Task4.Web.Services
 
             dbContext.Users.Add(user);
 
-            return await SaveUserAsync(cancellationToken);
+            var result = await SaveUserAsync(cancellationToken);
+
+            if (!result.Succeeded)
+                return result;
+
+            await CreateAndSendConfirmationAsync(user, cancellationToken);
+
+            return AuthResult.Success();
         }
 
         public async Task<User?> FindForLoginAsync(
@@ -46,6 +54,15 @@ namespace Task4.Web.Services
         {
             user.RecordLogin(GetUtcNow());
             await dbContext.SaveChangesAsync(cancellationToken);
+        }
+
+        private async Task CreateAndSendConfirmationAsync(
+            User user,
+            CancellationToken cancellationToken)
+        {
+            await emailConfirmationService.CreateAndSendAsync(
+                user,
+                cancellationToken);
         }
 
         private async Task<bool> EmailExistsAsync(
