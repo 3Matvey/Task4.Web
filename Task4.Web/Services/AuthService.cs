@@ -8,11 +8,13 @@ namespace Task4.Web.Services
     public sealed class AuthService(
         AppDbContext dbContext,
         PasswordHasher<User> passwordHasher,
-        EmailConfirmationService emailConfirmationService,
-        TimeProvider timeProvider)
+        TimeProvider timeProvider,
+        IServiceScopeFactory scopeFactory)
     {
         public async Task<AuthResult> RegisterAsync(
             RegisterUserCommand command,
+            string scheme,
+            string host,
             CancellationToken cancellationToken)
         {
             if (await EmailExistsAsync(command.Email, cancellationToken))
@@ -28,7 +30,11 @@ namespace Task4.Web.Services
             if (!result.Succeeded)
                 return result;
 
-            await CreateAndSendConfirmationAsync(user, cancellationToken);
+            SendConfirmationEmailInBackground(
+                user.Id,
+                user.Email,
+                scheme,
+                host);
 
             return AuthResult.Success();
         }
@@ -56,13 +62,27 @@ namespace Task4.Web.Services
             await dbContext.SaveChangesAsync(cancellationToken);
         }
 
-        private async Task CreateAndSendConfirmationAsync(
-            User user,
-            CancellationToken cancellationToken)
+
+        private void SendConfirmationEmailInBackground(
+            Guid userId,
+            string email,
+            string scheme,
+            string host)
         {
-            await emailConfirmationService.CreateAndSendAsync(
-                user,
-                cancellationToken);
+            _ = Task.Run(async () =>
+            {
+                using var scope = scopeFactory.CreateScope();
+
+                var emailConfirmationService =
+                    scope.ServiceProvider.GetRequiredService<EmailConfirmationService>();
+
+                await emailConfirmationService.CreateAndSendAsync(
+                    userId,
+                    email,
+                    scheme,
+                    host,
+                    CancellationToken.None);
+            });
         }
 
         private async Task<bool> EmailExistsAsync(

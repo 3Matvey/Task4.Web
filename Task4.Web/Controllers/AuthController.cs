@@ -59,14 +59,18 @@ namespace Task4.Web.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
+            var request = HttpContext.Request;
+
             var result = await authService.RegisterAsync(
                 CreateRegisterCommand(model),
+                request.Scheme,
+                request.Host.Value!,
                 cancellationToken);
 
             if (!result.Succeeded)
                 return RegistrationFailed(model, result.Error);
 
-            TempData["StatusMessage"] = "Registration completed. Please confirm your e-mail."; //TODO
+            TempData["StatusMessage"] = "Registration completed. Please confirm your e-mail.";
             return RedirectToAction(nameof(Login));
         }
 
@@ -78,7 +82,7 @@ namespace Task4.Web.Controllers
             return RedirectToAction(nameof(Login));
         }
 
-        private LoginCommand CreateLoginCommand(LoginViewModel model)
+        private static LoginCommand CreateLoginCommand(LoginViewModel model)
         {
             return new LoginCommand
             {
@@ -87,7 +91,7 @@ namespace Task4.Web.Controllers
             };
         }
 
-        private RegisterUserCommand CreateRegisterCommand(RegisterViewModel model)
+        private static RegisterUserCommand CreateRegisterCommand(RegisterViewModel model)
         {
             return new RegisterUserCommand
             {
@@ -134,8 +138,8 @@ namespace Task4.Web.Controllers
             return
             [
                 new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new(ClaimTypes.Name, user.Name),
-            new(ClaimTypes.Email, user.Email)
+                new(ClaimTypes.Name, user.Name),
+                new(ClaimTypes.Email, user.Email)
             ];
         }
     }

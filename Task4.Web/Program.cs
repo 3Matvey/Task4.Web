@@ -8,7 +8,10 @@ using Task4.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.Add<EnsureCurrentUserIsValidFilter>();
+});
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -29,10 +32,10 @@ builder.Services.AddAuthorization();
 
 
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<CurrentUserAccessor>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<EmailService>();
 builder.Services.AddScoped<EmailConfirmationService>();
-builder.Services.AddScoped<LinkBuilder>();
 builder.Services.AddScoped<CurrentUserGuard>();
 builder.Services.AddScoped<EnsureCurrentUserIsValidFilter>();
 builder.Services.AddScoped<PasswordHasher<User>>();

@@ -7,25 +7,32 @@ namespace Task4.Web.Services
     public sealed class EmailConfirmationService(
         AppDbContext dbContext,
         EmailService emailService,
-        LinkBuilder linkBuilder,
         TimeProvider timeProvider)
     {
         public async Task CreateAndSendAsync(
-            User user,
+            Guid userId,
+            string email,
+            string scheme,
+            string host,
             CancellationToken cancellationToken)
         {
             var token = EmailConfirmationToken.Create(
-                user.Id,
+                userId,
                 GetUtcNow(),
                 TimeSpan.FromHours(24));
 
             dbContext.EmailConfirmationTokens.Add(token);
             await dbContext.SaveChangesAsync(cancellationToken);
 
+            var link = BuildEmailConfirmationLink(
+                token.Token,
+                scheme,
+                host);
+
             await emailService.SendEmailAsync(
-                user.Email,
+                email,
                 "Confirm your e-mail",
-                CreateBody(token.Token),
+                CreateBody(link),
                 cancellationToken);
         }
 
@@ -58,15 +65,21 @@ namespace Task4.Web.Services
                 .SingleOrDefaultAsync(x => x.Token == token, cancellationToken);
         }
 
-        private string CreateBody(string token)
+        private static string CreateBody(string link)
         {
-            var link = linkBuilder.BuildEmailConfirmationLink(token);
-
             return $"""
                 <p>Please confirm your e-mail by clicking the link below.</p>
                 <p><a href="{link}">Confirm e-mail</a></p>
                 <p>{link}</p>
              """;
+        }
+
+        public string BuildEmailConfirmationLink(
+            string token,
+            string scheme,
+            string host)
+        {
+            return $"{scheme}://{host}/Email/Confirm?token={Uri.EscapeDataString(token)}";
         }
 
         private DateTime GetUtcNow()

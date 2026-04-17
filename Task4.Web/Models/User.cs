@@ -20,11 +20,7 @@
 
         public bool CanLogin => Status != UserStatus.Blocked;
 
-        public bool IsBlocked => Status == UserStatus.Blocked;
-
-        public bool IsUnverified => Status == UserStatus.Unverified;
-
-        public bool IsActive => Status == UserStatus.Active;
+        public bool IsEmailConfirmed => EmailConfirmedAtUtc.HasValue;
 
         private User() { }
 
