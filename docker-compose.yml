@@ -1,0 +1,43 @@
+services:
+  db:
+    image: postgres:17
+    container_name: task4-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: task4
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+  web:
+    build:
+      context: .
+      dockerfile: Task4.Web/Dockerfile
+    container_name: task4-web
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Host=db;Port=5432;Database=task4;Username=postgres;Password=${POSTGRES_PASSWORD}
+      MailSettings__Host: smtp.gmail.com
+      MailSettings__Port: 587
+      MailSettings__Username: ${MAIL_USERNAME}
+      MailSettings__Password: ${MAIL_PASSWORD}
+      MailSettings__FromEmail: ${MAIL_FROM_EMAIL}
+      MailSettings__FromName: Task4.Web
+    ports:
+      - "8080:8080"
+
+volumes:
+  postgres_data:

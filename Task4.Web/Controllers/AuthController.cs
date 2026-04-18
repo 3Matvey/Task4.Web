@@ -21,16 +21,12 @@ namespace Task4.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(
-            LoginViewModel model,
-            CancellationToken cancellationToken)
+        public async Task<IActionResult> Login(LoginViewModel model, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
                 return View(model);
 
-            var user = await authService.FindForLoginAsync(
-                CreateLoginCommand(model),
-                cancellationToken);
+            var user = await authService.FindForLoginAsync(CreateLoginCommand(model), cancellationToken);
 
             if (user is null)
                 return InvalidLogin(model);
@@ -52,20 +48,14 @@ namespace Task4.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(
-            RegisterViewModel model,
-            CancellationToken cancellationToken)
+        public async Task<IActionResult> Register(RegisterViewModel model, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
                 return View(model);
 
             var request = HttpContext.Request;
 
-            var result = await authService.RegisterAsync(
-                CreateRegisterCommand(model),
-                request.Scheme,
-                request.Host.Value!,
-                cancellationToken);
+            var result = await authService.RegisterAsync(CreateRegisterCommand(model), request.Scheme, request.Host.Value!, cancellationToken);
 
             if (!result.Succeeded)
                 return RegistrationFailed(model, result.Error);
@@ -107,9 +97,7 @@ namespace Task4.Web.Controllers
             return View(nameof(Login), model);
         }
 
-        private IActionResult RegistrationFailed(
-            RegisterViewModel model,
-            string error)
+        private IActionResult RegistrationFailed(RegisterViewModel model, string error)
         {
             ModelState.AddModelError(string.Empty, error);
             return View(nameof(Register), model);
@@ -119,16 +107,12 @@ namespace Task4.Web.Controllers
         {
             var principal = CreatePrincipal(user);
 
-            await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                principal);
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
         }
 
         private static ClaimsPrincipal CreatePrincipal(User user)
         {
-            var identity = new ClaimsIdentity(
-                CreateClaims(user),
-                CookieAuthenticationDefaults.AuthenticationScheme);
+            var identity = new ClaimsIdentity(CreateClaims(user), CookieAuthenticationDefaults.AuthenticationScheme);
 
             return new ClaimsPrincipal(identity);
         }

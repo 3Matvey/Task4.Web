@@ -9,36 +9,19 @@ namespace Task4.Web.Services
         EmailService emailService,
         TimeProvider timeProvider)
     {
-        public async Task CreateAndSendAsync(
-            Guid userId,
-            string email,
-            string scheme,
-            string host,
-            CancellationToken cancellationToken)
+        public async Task CreateAndSendAsync(Guid userId, string email, string scheme, string host, CancellationToken cancellationToken)
         {
-            var token = EmailConfirmationToken.Create(
-                userId,
-                GetUtcNow(),
-                TimeSpan.FromHours(24));
+            var token = EmailConfirmationToken.Create(userId, GetUtcNow(), TimeSpan.FromHours(24));
 
             dbContext.EmailConfirmationTokens.Add(token);
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            var link = BuildEmailConfirmationLink(
-                token.Token,
-                scheme,
-                host);
+            var link = BuildEmailConfirmationLink(token.Token, scheme, host);
 
-            await emailService.SendEmailAsync(
-                email,
-                "Confirm your e-mail",
-                CreateBody(link),
-                cancellationToken);
+            await emailService.SendEmailAsync(email, "Confirm your e-mail", CreateBody(link), cancellationToken);
         }
 
-        public async Task<EmailConfirmationResult> ConfirmAsync(
-            string token,
-            CancellationToken cancellationToken)
+        public async Task<EmailConfirmationResult> ConfirmAsync(string token, CancellationToken cancellationToken)
         {
             var entity = await FindTokenAsync(token, cancellationToken);
 
@@ -56,9 +39,7 @@ namespace Task4.Web.Services
             return EmailConfirmationResult.Success();
         }
 
-        private async Task<EmailConfirmationToken?> FindTokenAsync(
-            string token,
-            CancellationToken cancellationToken)
+        private async Task<EmailConfirmationToken?> FindTokenAsync(string token, CancellationToken cancellationToken)
         {
             return await dbContext.EmailConfirmationTokens
                 .Include(x => x.User)
@@ -66,25 +47,15 @@ namespace Task4.Web.Services
         }
 
         private static string CreateBody(string link)
-        {
-            return $"""
+            => $"""
                 <p>Please confirm your e-mail by clicking the link below.</p>
                 <p><a href="{link}">Confirm e-mail</a></p>
                 <p>{link}</p>
-             """;
-        }
+               """;
 
-        public string BuildEmailConfirmationLink(
-            string token,
-            string scheme,
-            string host)
-        {
-            return $"{scheme}://{host}/Email/Confirm?token={Uri.EscapeDataString(token)}";
-        }
+        public string BuildEmailConfirmationLink(string token, string scheme, string host)
+            => $"{scheme}://{host}/Email/Confirm?token={Uri.EscapeDataString(token)}";
 
-        private DateTime GetUtcNow()
-        {
-            return timeProvider.GetUtcNow().UtcDateTime;
-        }
+        private DateTime GetUtcNow() => timeProvider.GetUtcNow().UtcDateTime;
     }
 }

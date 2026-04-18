@@ -7,9 +7,7 @@ namespace Task4.Web.Services
 {
     public sealed class CurrentUserGuard(AppDbContext dbContext)
     {
-        public async Task<bool> IsValidAsync(
-            ClaimsPrincipal principal,
-            CancellationToken cancellationToken)
+        public async Task<bool> IsValidAsync(ClaimsPrincipal principal, CancellationToken cancellationToken)
         {
             var userId = GetUserId(principal);
 
@@ -26,9 +24,7 @@ namespace Task4.Web.Services
         {
             var value = principal.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            return Guid.TryParse(value, out var userId) 
-                ? userId 
-                : null;
+            return Guid.TryParse(value, out var userId) ? userId : null;
         }
     }
 }

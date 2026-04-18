@@ -7,8 +7,7 @@ namespace Task4.Web.Services;
 
 public sealed class UserService(AppDbContext dbContext)
 {
-    public async Task<IReadOnlyList<UserRowViewModel>> GetUsersAsync(
-        CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<UserRowViewModel>> GetUsersAsync(CancellationToken cancellationToken)
     {
         return await dbContext.Users
             .OrderByDescending(x => x.LastLoginAtUtc ?? x.CreatedAtUtc)
@@ -23,9 +22,7 @@ public sealed class UserService(AppDbContext dbContext)
             .ToListAsync(cancellationToken);
     }
 
-    public async Task BlockAsync(
-        IReadOnlyList<Guid> ids,
-        CancellationToken cancellationToken)
+    public async Task BlockAsync(IReadOnlyList<Guid> ids, CancellationToken cancellationToken)
     {
         var users = await LoadUsersAsync(ids, cancellationToken);
 
@@ -35,9 +32,7 @@ public sealed class UserService(AppDbContext dbContext)
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task UnblockAsync(
-        IReadOnlyList<Guid> ids,
-        CancellationToken cancellationToken)
+    public async Task UnblockAsync(IReadOnlyList<Guid> ids, CancellationToken cancellationToken)
     {
         var users = await LoadUsersAsync(ids, cancellationToken);
 
@@ -47,9 +42,7 @@ public sealed class UserService(AppDbContext dbContext)
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task DeleteAsync(
-        IReadOnlyList<Guid> ids,
-        CancellationToken cancellationToken)
+    public async Task DeleteAsync(IReadOnlyList<Guid> ids, CancellationToken cancellationToken)
     {
         var users = await LoadUsersAsync(ids, cancellationToken);
 
@@ -57,10 +50,7 @@ public sealed class UserService(AppDbContext dbContext)
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<bool> DeleteUnverifiedAsync(
-        IReadOnlyList<Guid> ids,
-        Guid? currentUserId,
-        CancellationToken cancellationToken)
+    public async Task<bool> DeleteUnverifiedAsync(IReadOnlyList<Guid> ids, Guid? currentUserId, CancellationToken cancellationToken)
     {
         var users = await LoadUsersAsync(ids, cancellationToken);
         var toDelete = GetUnverifiedUsers(users);
@@ -79,17 +69,13 @@ public sealed class UserService(AppDbContext dbContext)
             .ToList();
     }
 
-    private static bool IsDeletedCurrentUser(
-        IEnumerable<User> users,
-        Guid? currentUserId)
+    private static bool IsDeletedCurrentUser(IEnumerable<User> users, Guid? currentUserId)
     {
         return currentUserId.HasValue
             && users.Any(x => x.Id == currentUserId.Value);
     }
 
-    private async Task<List<User>> LoadUsersAsync(
-        IReadOnlyList<Guid> ids,
-        CancellationToken cancellationToken)
+    private async Task<List<User>> LoadUsersAsync(IReadOnlyList<Guid> ids, CancellationToken cancellationToken)
     {
         return await dbContext.Users
             .Where(x => ids.Contains(x.Id))

@@ -25,9 +25,7 @@ public sealed class UsersController(
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Block(
-        BulkActionRequest request,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> Block(BulkActionRequest request, CancellationToken cancellationToken)
     {
         await userService.BlockAsync(request.SelectedUserIds, cancellationToken);
 
@@ -40,9 +38,7 @@ public sealed class UsersController(
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Unblock(
-        BulkActionRequest request,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> Unblock(BulkActionRequest request, CancellationToken cancellationToken)
     {
         await userService.UnblockAsync(request.SelectedUserIds, cancellationToken);
 
@@ -52,9 +48,7 @@ public sealed class UsersController(
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Delete(
-        BulkActionRequest request,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> Delete(BulkActionRequest request, CancellationToken cancellationToken)
     {
         await userService.DeleteAsync(request.SelectedUserIds, cancellationToken);
 
@@ -67,16 +61,11 @@ public sealed class UsersController(
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteUnverified(
-        BulkActionRequest request,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> DeleteUnverified(BulkActionRequest request, CancellationToken cancellationToken)
     {
         var currentUserId = currentUserAccessor.GetUserId(User);
 
-        var deletedCurrentUser = await userService.DeleteUnverifiedAsync(
-            request.SelectedUserIds,
-            currentUserId,
-            cancellationToken);
+        var deletedCurrentUser = await userService.DeleteUnverifiedAsync(request.SelectedUserIds, currentUserId, cancellationToken);
 
         if (deletedCurrentUser)
             return await LogoutCurrentUserAsync();

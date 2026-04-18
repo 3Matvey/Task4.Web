@@ -24,11 +24,7 @@
 
         private User() { }
 
-        private User(
-            string name,
-            string email,
-            string passwordHash,
-            DateTime createdAtUtc)
+        private User(string name, string email, string passwordHash, DateTime createdAtUtc)
         {
             Name = NormalizeName(name);
             Email = NormalizeEmail(email);
@@ -37,14 +33,8 @@
             Status = UserStatus.Unverified;
         }
 
-        public static User Create(
-            string name,
-            string email,
-            string passwordHash,
-            DateTime createdAtUtc)
-        {
-            return new User(name, email, passwordHash, createdAtUtc);
-        }
+        public static User Create(string name, string email, string passwordHash, DateTime createdAtUtc) 
+            => new(name, email, passwordHash, createdAtUtc);
 
         public void ConfirmEmail(DateTime confirmedAtUtc)
         {
@@ -67,17 +57,13 @@
                 : UserStatus.Unverified;
         }
 
-        public void RecordLogin(DateTime loginAtUtc) => 
-            LastLoginAtUtc = loginAtUtc;
+        public void RecordLogin(DateTime loginAtUtc) 
+            => LastLoginAtUtc = loginAtUtc;
 
-        private static string NormalizeName(string name)
-        {
-            return name.Trim();
-        }
+        private static string NormalizeName(string name) 
+            => name.Trim();
 
-        private static string NormalizeEmail(string email)
-        {
-            return email.Trim().ToLowerInvariant();
-        }
+        private static string NormalizeEmail(string email) 
+            => email.Trim().ToLowerInvariant();
     }
 }

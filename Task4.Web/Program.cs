@@ -56,8 +56,31 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+await ApplyMigrationsAsync(app);
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Auth}/{action=Login}/{id?}");
 
 app.Run();
+
+static async Task ApplyMigrationsAsync(WebApplication app)
+{
+    int attemptLeft = 10;
+
+    do
+    {
+        try
+        {
+            using var scope = app.Services.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            await dbContext.Database.MigrateAsync();
+
+            return;
+        }
+        catch when (--attemptLeft > 0)
+        {
+            await Task.Delay(TimeSpan.FromSeconds(3));
+        }
+    } while (true);
+}

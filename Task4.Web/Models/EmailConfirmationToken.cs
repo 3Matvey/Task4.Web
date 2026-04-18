@@ -20,11 +20,7 @@
 
         private EmailConfirmationToken() { }
 
-        private EmailConfirmationToken(
-            Guid userId,
-            string token,
-            DateTime createdAtUtc,
-            DateTime expiresAtUtc)
+        private EmailConfirmationToken(Guid userId, string token, DateTime createdAtUtc, DateTime expiresAtUtc)
         {
             UserId = userId;
             Token = token;
@@ -32,16 +28,9 @@
             ExpiresAtUtc = expiresAtUtc;
         }
 
-        public static EmailConfirmationToken Create(
-            Guid userId,
-            DateTime nowUtc,
-            TimeSpan lifetime)
+        public static EmailConfirmationToken Create(Guid userId, DateTime nowUtc, TimeSpan lifetime)
         {
-            return new EmailConfirmationToken(
-                userId,
-                GenerateToken(),
-                nowUtc,
-                nowUtc.Add(lifetime));
+            return new EmailConfirmationToken(userId, GenerateToken(), nowUtc, nowUtc.Add(lifetime));
         }
 
         public bool IsExpired(DateTime nowUtc) =>

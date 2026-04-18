@@ -6,16 +6,12 @@ namespace Task4.Web.Controllers
 {
     [AllowAnonymous]
     public sealed class EmailController(
-    EmailConfirmationService emailConfirmationService) : Controller
+        EmailConfirmationService emailConfirmationService) : Controller
     {
         [HttpGet]
-        public async Task<IActionResult> Confirm(
-            string token,
-            CancellationToken cancellationToken)
+        public async Task<IActionResult> Confirm(string token, CancellationToken cancellationToken)
         {
-            var result = await emailConfirmationService.ConfirmAsync(
-                token,
-                cancellationToken);
+            var result = await emailConfirmationService.ConfirmAsync(token, cancellationToken);
 
             if (!result.Succeeded)
                 return BadRequest(result.Error);

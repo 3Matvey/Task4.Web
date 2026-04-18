@@ -1,3 +1,7 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".env" />
+    <File Path="docker-compose.yml" />
+  </Folder>
   <Project Path="Task4.Web/Task4.Web.csproj" />
 </Solution>

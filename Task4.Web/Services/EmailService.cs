@@ -9,35 +9,18 @@ namespace Task4.Web.Services
     {
         private readonly MailSettings settings = options.Value;
 
-        public async Task SendEmailAsync(
-            string toEmail,
-            string subject,
-            string htmlBody,
-            CancellationToken cancellationToken)
+        public async Task SendEmailAsync(string toEmail, string subject, string htmlBody, CancellationToken cancellationToken)
         {
             var message = CreateMessage(toEmail, subject, htmlBody);
-
             using var client = new SmtpClient();
 
-            await client.ConnectAsync(
-                settings.Host,
-                settings.Port,
-                SecureSocketOptions.StartTls,
-                cancellationToken);
-
-            await client.AuthenticateAsync(
-                settings.Username,
-                settings.Password,
-                cancellationToken);
-
+            await client.ConnectAsync(settings.Host, settings.Port, SecureSocketOptions.StartTls, cancellationToken);
+            await client.AuthenticateAsync(settings.Username, settings.Password, cancellationToken);
             await client.SendAsync(message, cancellationToken);
             await client.DisconnectAsync(true, cancellationToken);
         }
 
-        private MimeMessage CreateMessage(
-           string toEmail,
-           string subject,
-           string htmlBody)
+        private MimeMessage CreateMessage(string toEmail, string subject, string htmlBody)
         {
             var message = new MimeMessage();
 

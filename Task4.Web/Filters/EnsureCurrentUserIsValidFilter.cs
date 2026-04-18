@@ -10,9 +10,7 @@ namespace Task4.Web.Filters
     public sealed class EnsureCurrentUserIsValidFilter(
         CurrentUserGuard guard) : IAsyncActionFilter
     {
-        public async Task OnActionExecutionAsync(
-            ActionExecutingContext context,
-            ActionExecutionDelegate next)
+        public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             if (IsAnonymousAllowed(context))
             {
@@ -26,9 +24,7 @@ namespace Task4.Web.Filters
                 return;
             }
 
-            if (await guard.IsValidAsync(
-                    context.HttpContext.User,
-                    context.HttpContext.RequestAborted))
+            if (await guard.IsValidAsync(context.HttpContext.User, context.HttpContext.RequestAborted))
             {
                 await next();
                 return;
@@ -45,13 +41,9 @@ namespace Task4.Web.Filters
 
         private static async Task RejectInvalidUserAsync(ActionExecutingContext context)
         {
-            await context.HttpContext.SignOutAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme);
+            await context.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
-            context.Result = new RedirectToActionResult(
-                "Login",
-                "Auth",
-                null);
+            context.Result = new RedirectToActionResult("Login", "Auth", null);
         }
     }
 }

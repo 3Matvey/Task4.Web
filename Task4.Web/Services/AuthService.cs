@@ -11,11 +11,7 @@ namespace Task4.Web.Services
         TimeProvider timeProvider,
         IServiceScopeFactory scopeFactory)
     {
-        public async Task<AuthResult> RegisterAsync(
-            RegisterUserCommand command,
-            string scheme,
-            string host,
-            CancellationToken cancellationToken)
+        public async Task<AuthResult> RegisterAsync(RegisterUserCommand command, string scheme, string host, CancellationToken cancellationToken)
         {
             if (await EmailExistsAsync(command.Email, cancellationToken))
                 return AuthResult.Fail("A user with this e-mail already exists.");
@@ -30,18 +26,12 @@ namespace Task4.Web.Services
             if (!result.Succeeded)
                 return result;
 
-            SendConfirmationEmailInBackground(
-                user.Id,
-                user.Email,
-                scheme,
-                host);
+            SendConfirmationEmailInBackground(user.Id, user.Email, scheme, host);
 
             return AuthResult.Success();
         }
 
-        public async Task<User?> FindForLoginAsync(
-            LoginCommand command,
-            CancellationToken cancellationToken)
+        public async Task<User?> FindForLoginAsync(LoginCommand command, CancellationToken cancellationToken)
         {
             var user = await FindByEmailAsync(command.Email, cancellationToken);
 
@@ -54,40 +44,26 @@ namespace Task4.Web.Services
             return user.CanLogin ? user : null;
         }
 
-        public async Task RecordLoginAsync(
-            User user,
-            CancellationToken cancellationToken)
+        public async Task RecordLoginAsync(User user, CancellationToken cancellationToken)
         {
             user.RecordLogin(GetUtcNow());
             await dbContext.SaveChangesAsync(cancellationToken);
         }
 
 
-        private void SendConfirmationEmailInBackground(
-            Guid userId,
-            string email,
-            string scheme,
-            string host)
+        private void SendConfirmationEmailInBackground(Guid userId, string email, string scheme, string host)
         {
             _ = Task.Run(async () =>
             {
                 using var scope = scopeFactory.CreateScope();
 
-                var emailConfirmationService =
-                    scope.ServiceProvider.GetRequiredService<EmailConfirmationService>();
+                var emailConfirmationService = scope.ServiceProvider.GetRequiredService<EmailConfirmationService>();
 
-                await emailConfirmationService.CreateAndSendAsync(
-                    userId,
-                    email,
-                    scheme,
-                    host,
-                    CancellationToken.None);
+                await emailConfirmationService.CreateAndSendAsync(userId, email, scheme, host, CancellationToken.None);
             });
         }
 
-        private async Task<bool> EmailExistsAsync(
-            string email,
-            CancellationToken cancellationToken)
+        private async Task<bool> EmailExistsAsync(string email, CancellationToken cancellationToken)
         {
             var normalizedEmail = NormalizeEmail(email);
 
@@ -109,8 +85,7 @@ namespace Task4.Web.Services
             user.PasswordHash = passwordHasher.HashPassword(user, password);
         }
 
-        private async Task<AuthResult> SaveUserAsync(
-            CancellationToken cancellationToken)
+        private async Task<AuthResult> SaveUserAsync(CancellationToken cancellationToken)
         {
             try
             {
@@ -123,9 +98,7 @@ namespace Task4.Web.Services
             }
         }
 
-        private async Task<User?> FindByEmailAsync(
-            string email,
-            CancellationToken cancellationToken)
+        private async Task<User?> FindByEmailAsync(string email, CancellationToken cancellationToken)
         {
             var normalizedEmail = NormalizeEmail(email);
 
@@ -133,9 +106,7 @@ namespace Task4.Web.Services
                 .SingleOrDefaultAsync(x => x.Email == normalizedEmail, cancellationToken);
         }
 
-        private PasswordVerificationResult VerifyPasswordResult(
-            User user,
-            string password)
+        private PasswordVerificationResult VerifyPasswordResult(User user, string password)
         {
             return passwordHasher.VerifyHashedPassword(
                 user,
