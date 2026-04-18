@@ -30,7 +30,6 @@ builder.Services
 
 builder.Services.AddAuthorization();
 
-
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<CurrentUserAccessor>();
 builder.Services.AddScoped<UserService>();
@@ -57,6 +56,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 await ApplyMigrationsAsync(app);
+
+app.MapGet("/health", () => Results.Ok("OK"));
 
 app.MapControllerRoute(
     name: "default",
